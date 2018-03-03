@@ -1,0 +1,9 @@
+
+
+                                      t2h
+
+
+"t2h" stands for text-to-HTML, it converts a plain text (.txt) file to an HTML 
+file.
+
+It's designed as a standalone converter.
