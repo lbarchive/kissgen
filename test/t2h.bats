@@ -69,6 +69,19 @@ teardown()
 }
 
 
+@test "$_TF test.html  # text does not exist" {
+    local text="foobar"
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/test.html"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 1
+    echo_lines
+    [[ "${lines[0]}" == "$tf is not readable!" ]]
+}
+
+
 # standard input/output
 #######################
 
@@ -106,4 +119,67 @@ teardown()
     eqn "$status" 0
     echo_lines
     [[ "${lines[*]}" == *"$text"* ]]
+}
+
+
+##############
+# timestamps #
+##############
+
+
+@test "$_TF: timestamp" {
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/test.html"
+
+    touch "$tf"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    eqs "${lines[*]}" ''
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    echo_lines
+    [[ "${lines[*]}" == *skipped ]]
+
+    local tst="$(stat -c %Y "$tf")"
+    local tsh="$(stat -c %Y "$hf")"
+    eqn "$tst" "$tsh"
+}
+
+
+@test "$_TF: same timestamp" {
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/test.html"
+
+    touch -d 0 "$tf" "$hf"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    [[ "${lines[*]}" == *skipped ]]
+
+    local tst="$(stat -c %Y "$tf")"
+    local tsh="$(stat -c %Y "$hf")"
+    eqn "$tst" "$tsh"
+}
+
+
+@test "$_TF: different timestamp" {
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/test.html"
+
+    touch -d 0 "$tf"
+    touch -d 7 "$hf"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    eqs "${lines[*]}" ''
+
+    local tst="$(stat -c %Y "$tf")"
+    local tsh="$(stat -c %Y "$hf")"
+    eqn "$tst" "$tsh"
 }

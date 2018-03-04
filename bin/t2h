@@ -32,6 +32,25 @@ t2h_html_encode()
 }
 
 
+#############
+# timestamp #
+#############
+
+
+# get file $1 modification time in seconds from Unix epoch
+t2h_get_ts()
+{
+    stat -c %Y "$1"
+}
+
+
+# set file $2 modification time to $1 in seconds from Unix epoch
+t2h_set_ts()
+{
+    touch -d @"$1" "$2"
+}
+
+
 ################
 # command-line #
 ################
@@ -53,8 +72,25 @@ t2h_main()
         return 1
     fi
 
-    [[ "$tf" == - ]] && tf='/dev/stdin'
-    [[ "$hf" == - ]] && hf='/dev/stdout'
+    local upd_ts=0
+    if [[ "$tf" != - && "$hf" != - ]]; then
+        # only check timestamp with $hf exists
+        if [[ -f "$hf" ]] \
+        && (($(t2h_get_ts "$tf") == $(t2h_get_ts "$hf"))); then
+            echo 'timestamp unchanged, generation skipped'
+            return 0
+        fi
+        upd_ts=1
+    else
+        [[ "$tf" == - ]] && tf='/dev/stdin'
+        [[ "$hf" == - ]] && hf='/dev/stdout'
+    fi
+
+    # check if $tf readable
+    if [[ ! -r "$tf" ]]; then
+        echo "$tf is not readable!" >&2
+        return 1
+    fi
 
     {
         echo '<!DOCTYPE html>'
@@ -67,6 +103,10 @@ t2h_main()
         t2h_html_encode
         echo   '</pre>'
     } < "$tf" > "$hf"
+
+    if ((upd_ts)); then
+        t2h_set_ts "$(t2h_get_ts "$tf")" "$hf"
+    fi
 }
 
 
