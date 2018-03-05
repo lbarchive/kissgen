@@ -54,6 +54,70 @@ t2h_set_ts()
 }
 
 
+#########
+# hooks #
+#########
+
+
+# run $1 hook with stdin input
+# if $2 == 1 and ! -z $text, then echo
+t2h_do_hook()
+{
+    local hook="t2h_hook_$1[@]"
+    local text="$(cat)"
+    for f in ${!hook}; do
+        text="$(echo -n "$text" | $f)"
+    done
+    if [[ ! -z "$text" ]]; then
+        echo -n "$text"
+        if (($2)); then
+            echo
+        fi
+    fi
+}
+
+
+#################
+# configuration #
+#################
+
+
+T2H_CONF='.t2h.sh'
+
+
+t2h_source_conf()
+{
+    if [[ -f "$1" ]]; then
+        echo "$NAME: [CONF] soucring $1"
+        source "$1"
+    fi
+}
+
+
+##############
+# conversion #
+##############
+
+
+t2h_conv()
+{
+    local title="$1"
+
+    echo '<!DOCTYPE html>'
+
+    echo -n '<title>'
+    echo "$title" | t2h_html_encode | t2h_do_hook title 0
+    echo   '</title>'
+    echo -n | t2h_do_hook after_title 1
+
+    echo -n | t2h_do_hook before_pre 1
+    echo -n '<pre>'
+    t2h_html_encode | t2h_do_hook pre 0
+    echo   '</pre>'
+    echo -n | t2h_do_hook after_pre 0
+}
+
+
 ################
 # command-line #
 ################
@@ -95,6 +159,8 @@ t2h_main()
         return 1
     fi
 
+    t2h_source_conf "$(dirname "$tf")/$T2H_CONF"
+
     # create non-existing directories
     local hd="$(dirname "$hf")"
     if [[ ! -d "$hd" ]]; then
@@ -102,17 +168,7 @@ t2h_main()
         mkdir -p "$hd"
     fi
 
-    {
-        echo '<!DOCTYPE html>'
-
-        echo -n '<title>'
-        echo -n "$(basename "$tf")" | t2h_html_encode
-        echo   '</title>'
-
-        echo -n '<pre>'
-        t2h_html_encode
-        echo   '</pre>'
-    } < "$tf" > "$hf"
+    t2h_conv "$(basename "$tf")" < "$tf" > "$hf"
 
     if ((upd_ts)); then
         t2h_set_ts "$(t2h_get_ts "$tf")" "$hf"

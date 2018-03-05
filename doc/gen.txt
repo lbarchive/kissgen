@@ -4,4 +4,4 @@
 
 
 gen generates HTML files with a directory of text files, it is the main script 
-of w.txt-gen, although t2h does the conversion work.
+of kissgen, although t2h does all the conversion work.

@@ -13,3 +13,73 @@ It's designed as a standalone converter.
 
 
 - timestamp check: no unnecessary conversion.
+- hooks and filters
+
+
+                                     HOOKS
+
+
+The conversion process provides the following hooks:
+
+
+- title <- basename of text file
+
+    The default title is filtered by t2h_html_encode, the final output is 
+    wrapped in <title>.
+
+- after_title <- ''
+
+- before_pre <- ''
+
+- pre <- text
+
+    The text is filtered by t2h_html_encode, the final output is wrapped in 
+    <pre>.
+
+- after_pre <- ''
+
+
+"<-" denotes what initial input is.
+
+
+                                    FILTERS
+
+
+All filters operates on standard input/output.
+
+
+- t2h_html_encode
+
+    HTML-encoding text, that is to convert '&<>"' to their respective HTML 
+    entities.
+
+    It's used by default for title and pre hooks
+
+
+                             CONFIGURATION SCRIPT
+
+
+An example of utilizing t2h.sh:
+
+
+    append_site_name()
+    {
+        cat
+        echo ": SITE NAME"
+    }
+
+
+    t2h_hook_title+=(append_site_name)
+
+
+    add_style()
+    {
+        cat <<<STYLE
+    <style>
+    /* styles */
+    </style>
+    STYLE
+    }
+
+
+    t2h_hook_after_title=(add_style)
