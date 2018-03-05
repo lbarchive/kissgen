@@ -82,6 +82,20 @@ teardown()
 }
 
 
+@test "$_TF test.txt html.dir/test.html  # html.dir yet to create" {
+    local text="foobar"
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/html.dir/test.html"
+    echo "$text" > "$tf"
+
+    run t2h "$tf" "$hf"
+    eqn "$status" 0
+    echo_lines
+    [[ "${lines[0]}" == *creating* ]]
+    grep "$text" "$hf"
+}
+
+
 # standard input/output
 #######################
 

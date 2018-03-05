@@ -63,6 +63,8 @@ generator, coding in Bash.
 
 kissgen consists of a set of scripts:
 
+- bin/gen generates static site HTML pages, using t2h to convert each text
+
 - bin/t2h converts plain text file to HTML
 
 
@@ -78,6 +80,10 @@ use them, you need to manually set $PATH:
                                      USAGE
 
 
+    $ gen text.dir html.dir
+
+
+[G] ./doc/gen.html
 [T] ./doc/t2h.html
 
 

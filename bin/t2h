@@ -20,6 +20,9 @@
 # SOFTWARE.
 
 
+NAME=t2h
+
+
 # encode HTML reserved entities [1] from standard input, and send result to
 # standard output.
 # [1] https://developer.mozilla.org/en-US/docs/Glossary/Entity#Reserved_characters
@@ -77,7 +80,7 @@ t2h_main()
         # only check timestamp with $hf exists
         if [[ -f "$hf" ]] \
         && (($(t2h_get_ts "$tf") == $(t2h_get_ts "$hf"))); then
-            echo 'timestamp unchanged, generation skipped'
+            echo "$NAME: same timestamp, conversion skipped"
             return 0
         fi
         upd_ts=1
@@ -90,6 +93,13 @@ t2h_main()
     if [[ ! -r "$tf" ]]; then
         echo "$tf is not readable!" >&2
         return 1
+    fi
+
+    # create non-existing directories
+    local hd="$(dirname "$hf")"
+    if [[ ! -d "$hd" ]]; then
+        echo "$NAME: [DIR] creating $hd directory..."
+        mkdir -p "$hd"
     fi
 
     {

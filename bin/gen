@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright (c) 2018 Yu-Jie Lin
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,74 +20,59 @@
 # SOFTWARE.
 
 
-GEN="$(readlink -f "$BATS_TEST_DIRNAME/../bin/gen")"
-T2H="$(readlink -f "$BATS_TEST_DIRNAME/../bin/t2h")"
+NAME=gen
 
 
-########
-# echo #
-########
+##############
+# generation #
+##############
 
 
-echo_ml()
+gen_dir()
 {
-    echo '====='
-    echo "$1"
-    echo '====='
-}
+    local td="${1%/}"   # input text directory
+    local hd="${2%/}"   # output HTML directory
 
-
-echo_lines()
-{
-    echo_ml "${lines[*]}"
-}
-
-
-###########
-# asserts #
-###########
-
-
-# test strings $1 == $2
-eqs ()
-{
-    echo "   '$1'"
-    echo "!= '$2'"
-    [[ "$1" == "$2" ]]
-}
-
-
-# test integers $1 == $2
-eqn ()
-{
-    echo "$1 != $2"
-    (($1 == $2))
-}
-
-
-##########
-# tmpdir #
-##########
-
-
-# initializes tested function temporary directory, which will be
-#
-#   $BATS_TMPDIR/$_TF, if $_TF != ''; otherwise
-#   $(mktemp --tmpdir=$BATS_TMPDIR --directory)
-_init_tf_tmpdir()
-{
-    if [[ "$_TF" ]]; then
-        _TF_TMPDIR="$BATS_TMPDIR/$_TF"
-        mkdir -p "$_TF_TMPDIR"
-    else
-        _TF_TMPDIR="$(mktemp --tmpdir=$BATS_TMPDIR --directory)"
+    if [[ -z "$td" || -z "$hd" ]]; then
+        gen_usage >&2
+        return 1
     fi
-}
 
-
-_deinit_tf_tmpdir()
-{
-    if [[ -d "$_TF_TMPDIR" ]]; then
-        rm -rf "$_TF_TMPDIR"
+    # check if $td directory exists
+    if [[ ! -d "$td" ]]; then
+        echo "$GEN: [ERR] $td does not exist!" >&2
+        return 1
     fi
+
+    for f in "$td"/*; do
+        if [[ -d "$f" ]]; then
+            echo "$NAME: [DIR] generating directory $f to $hd/$(basename "$f")"
+            gen_dir "$f" "$hd/$(basename "$f")"
+            continue
+        elif [[ -f "$f" && "$f" == *.txt ]]; then
+            local hf="$(basename --suffix=.txt "$f").html"
+            echo "$NAME: [T2H] converting $f to $hd/$hf"
+            t2h "$f" "$hd/$hf"
+        fi
+    done
 }
+
+
+################
+# command-line #
+################
+
+
+gen_usage()
+{
+    echo "Usage: $(basename "$0") <text.dir> <html.dir>"
+}
+
+
+gen_main()
+{
+    gen_dir "$@"
+}
+
+
+[[ "$0" != "$BASH_SOURCE" ]] || gen_main "$@"
