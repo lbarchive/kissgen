@@ -108,6 +108,27 @@ t2h_filter_linkify()
 }
 
 
+# convert a standalone line of image URL to <img>
+# accepted URL
+# - file
+# - ftp
+# - http*
+# - "."
+# " "/"
+# accepted extensions:
+# - gif
+# - jpg|jpeg
+# - png
+#
+# FIXME alt [1]
+# [1] https://www.w3.org/TR/html51/semantics-embedded-content.html#alt-text
+t2h_filter_url2img()
+{
+    sed -r \
+        -e 's_^( *)((file|ftp|http|\.|/).+\.(gif|jpeg|jpg|png))$_\1<img src="\2">_g'
+}
+
+
 #################
 # configuration #
 #################

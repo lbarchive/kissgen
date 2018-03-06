@@ -61,6 +61,14 @@ All filters operates on standard input/output.
 
         [X] https://example.com
 
+- t2h_filter_url2img
+
+    Convert image URL text to <img>
+
+    <BOL>    https://picsum.photos/400/100.jpg                            <EOL>
+
+             https://picsum.photos/400/100.jpg
+
 
                              CONFIGURATION SCRIPT
 
@@ -91,4 +99,4 @@ An example of utilizing t2h.sh:
     t2h_hook_after_title=(add_style)
 
 
-    t2h_hook_pre+=(t2h_filter_linkify)
+    t2h_hook_pre+=(t2h_filter_linkify t2h_filter_url2img)
