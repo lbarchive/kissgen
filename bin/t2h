@@ -140,7 +140,7 @@ T2H_CONF='.t2h.sh'
 t2h_source_conf()
 {
     if [[ -f "$1" ]]; then
-        echo "$NAME: [CONF] soucring $1"
+        echo "$NAME: [source] $1"
         source "$1"
     fi
 }
@@ -196,7 +196,7 @@ t2h_main()
         # only check timestamp with $hf exists
         if [[ -f "$hf" ]] \
         && (($(t2h_get_ts "$tf") == $(t2h_get_ts "$hf"))); then
-            echo "$NAME: same timestamp, conversion skipped"
+            echo "$NAME: [SKIP] $tf"
             return 0
         fi
         upd_ts=1
@@ -216,7 +216,7 @@ t2h_main()
     # create non-existing directories
     local hd="$(dirname "$hf")"
     if [[ ! -d "$hd" ]]; then
-        echo "$NAME: [DIR] creating $hd directory..."
+        echo "$NAME: [mkdir] $hd"
         mkdir -p "$hd"
     fi
 

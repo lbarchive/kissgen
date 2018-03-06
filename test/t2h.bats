@@ -91,7 +91,7 @@ teardown()
     run t2h "$tf" "$hf"
     eqn "$status" 0
     echo_lines
-    [[ "${lines[0]}" == *creating* ]]
+    [[ "${lines[0]}" == *mkdir* ]]
     grep "$text" "$hf"
 }
 
@@ -156,7 +156,7 @@ teardown()
 
     eqn "$status" 0
     echo_lines
-    [[ "${lines[*]}" == *skipped ]]
+    [[ "${lines[*]}" == *SKIP* ]]
 
     local tst="$(stat -c %Y "$tf")"
     local tsh="$(stat -c %Y "$hf")"
@@ -173,7 +173,7 @@ teardown()
     run t2h "$tf" "$hf"
 
     eqn "$status" 0
-    [[ "${lines[*]}" == *skipped ]]
+    [[ "${lines[*]}" == *SKIP* ]]
 
     local tst="$(stat -c %Y "$tf")"
     local tsh="$(stat -c %Y "$hf")"

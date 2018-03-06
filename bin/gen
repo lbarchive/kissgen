@@ -46,12 +46,12 @@ gen_dir()
 
     for f in "$td"/*; do
         if [[ -d "$f" ]]; then
-            echo "$NAME: [DIR] generating directory $f to $hd/$(basename "$f")"
+            echo "$NAME: [DIR] $f"
             gen_dir "$f" "$hd/$(basename "$f")"
             continue
         elif [[ -f "$f" && "$f" == *.txt ]]; then
             local hf="$(basename --suffix=.txt "$f").html"
-            echo "$NAME: [T2H] converting $f to $hd/$hf"
+            echo "$NAME: [T2H] $hd/$hf"
             t2h "$f" "$hd/$hf"
         fi
     done
