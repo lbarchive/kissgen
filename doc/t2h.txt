@@ -55,6 +55,12 @@ All filters operates on standard input/output.
 
     It's used by default for title and pre hooks
 
+- t2h_filter_linkify
+
+    Linkify
+
+        [X] https://example.com
+
 
                              CONFIGURATION SCRIPT
 
@@ -83,3 +89,6 @@ An example of utilizing t2h.sh:
 
 
     t2h_hook_after_title=(add_style)
+
+
+    t2h_hook_pre+=(t2h_filter_linkify)

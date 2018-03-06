@@ -77,6 +77,37 @@ t2h_do_hook()
 }
 
 
+###################
+# builtin filters #
+###################
+
+
+# linkify the URL part in the following form and occupies a whole line:
+#
+#   [X] URL
+#
+# It consists of the following parts in order:
+#
+# - any number of spaces for indentation
+# - "[X]": X is a single character
+# - one space
+# - URL:
+#   - starts with
+#     - file
+#     - ftp
+#     - http
+#     - mailto
+#     - "." for relative path
+#     - "/": absolute path or protocol-relative (//host/...) [1]
+#       [1] https://en.wikipedia.org/wiki/URL#prurl
+#   - ends with the EOL
+t2h_filter_linkify()
+{
+    sed -r \
+        -e 's_^( *\[.\] )((file|ftp|http|mailto).+|(\.|/).*)$_\1<a href="\2">\2</a>_g'
+}
+
+
 #################
 # configuration #
 #################
