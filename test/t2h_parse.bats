@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-_TF=t2h_conf    # configuration related tests
+_TF='t2h_parse'     # tested function
 # Copyright (c) 2018 Yu-Jie Lin
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,39 +27,42 @@ load helper
 setup()
 {
     source "$T2H"
-    _init_tf_tmpdir
 }
 
 
-teardown()
-{
-    _deinit_tf_tmpdir
+#############
+# arguments #
+#############
+
+
+@test "$_TF text html  # default settings" {
+    eval "$BATS_TEST_DESCRIPTION"
+    eqs "$T2H_TEXT_FILE" 'text'
+    eqs "$T2H_HTML_FILE" 'html'
 }
 
 
-@test "t2h_source_conf" {
-    local conf="$_TF_TMPDIR/$_T2H_CONF"
-    echo "ABC=FOOBAR" > "$conf"
-
-    t2h_source_conf "$conf"
-    eqn "$?" 0
-    eqs "$ABC" 'FOOBAR'
+@test "$_TF text  # missing html" {
+    run $BATS_TEST_DESCRIPTION
+    eqn "$status" 1
+    echo_lines
+    [[ "${lines[*]}" == Usage* ]]
 }
 
 
-@test "t2h # sourcing configuration" {
-    local text="this is text"
-    local tf="$_TF_TMPDIR/test.txt"
-    local hf="$_TF_TMPDIR/test.html"
-    echo "$text" > "$tf"
-    local conf="$(dirname "$tf")/$_T2H_CONF"
-    echo '_foobar(){ echo foobar; }; t2h_hook_after_title=(_foobar)' > "$conf"
+@test "$_TF  # missing text and html" {
+    run $BATS_TEST_DESCRIPTION
+    echo_lines
+    [[ "${lines[*]}" == Usage* ]]
+}
 
-    run t2h "$tf" "$hf"
 
-    eqn "$status" 0
-    eqs "$(<$hf)" "<!DOCTYPE html>
-<title>test.txt</title>
-foobar
-<pre>$text</pre>"
+###########
+# options #
+###########
+
+
+@test "$_TF -c /path/to/foobar.sh text html" {
+    eval "$BATS_TEST_DESCRIPTION"
+    eqs "$T2H_OPT_CONF" "/path/to/foobar.sh" 
 }

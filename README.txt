@@ -65,6 +65,8 @@ kissgen consists of a set of scripts:
 
 - bin/gen generates static site HTML pages, using t2h to convert each text
 
+- bin/idx generates directory listing, using t2h to form 00INDEX.html
+
 - bin/t2h converts plain text file to HTML
 
 
@@ -81,9 +83,11 @@ use them, you need to manually set $PATH:
 
 
     $ gen text.dir html.dir
+    $ idx html.dir
 
 
 [G] ./doc/gen.html
+[I] ./doc/idx.html
 [T] ./doc/t2h.html
 
 

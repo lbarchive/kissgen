@@ -13,7 +13,12 @@ It's designed as a standalone converter.
 
 
 - timestamp check: no unnecessary conversion.
+
 - hooks and filters
+
+- configuration script:
+
+    It can be used for configuring hooks and filters.
 
 
                                      HOOKS

@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# Copyright (c) 2018 Yu-Jie Lin
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+NAME=IDX
+
+
+##############
+# generation #
+##############
+
+
+idx_t2h_conf()
+{
+    cat <<EOF
+dir_title()
+{
+    echo "Index of $dir_path"
+}
+
+
+t2h_hook_title=(dir_title t2h_html_encode)
+t2h_hook_pre=(t2h_filter_linkify)
+EOF
+}
+
+
+# $1: dir path
+idx_dir()
+{
+    local dir_path="$1"
+    local hd="${2%/}"   # output HTML directory
+    cd "$hd"
+
+    if [[ -z "$hd" ]]; then
+        idx_usage >&2
+        return 1
+    fi
+
+    {
+        echo "Index of $dir_path"
+        echo
+        echo "[C] ."
+        echo
+        if [[ "$dir_path" != '/' ]]; then
+            echo "[I] ../00INDEX.html"
+            echo
+            echo "    [U] .."
+            echo
+        fi
+        echo
+
+        for d in */; do
+            [[ "$d" == '*/' ]] && continue
+            ( idx_dir "$dir_path$d" "$d" ) >&2
+            d="${d%/}"
+            echo "[I] ./$d/00INDEX.html"
+            echo
+            echo "    [D] ./$d"
+            echo
+        done
+        echo
+
+        for h in *.html; do
+            [[ "$h" == '00INDEX.html' ]] && continue
+            echo "[H] ./$h"
+            echo
+        done
+    } |
+    t2h -c <(idx_t2h_conf) - '00INDEX.html'
+}
+
+
+################
+# command-line #
+################
+
+
+idx_usage()
+{
+    echo "Usage: $(basename "$0") <html.dir>"
+}
+
+
+idx_main()
+{
+    idx_dir '/' "$@"
+}
+
+
+[[ "$0" != "$BASH_SOURCE" ]] || idx_main "$@"

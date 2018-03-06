@@ -134,15 +134,14 @@ t2h_filter_url2img()
 #################
 
 
-T2H_CONF='.t2h.sh'
+_T2H_CONF='.t2h.sh'
 
 
 t2h_source_conf()
 {
-    if [[ -f "$1" ]]; then
-        echo "$NAME: [source] $1"
-        source "$1"
-    fi
+    echo "$NAME: [source] $1"
+    source "$1"
+    T2H_CONF="$1"
 }
 
 
@@ -177,19 +176,51 @@ t2h_conv()
 
 t2h_usage()
 {
-    echo "Usage: $(basename "$0") <text> <html>"
+    echo "Usage: $(basename "$0") [OPTIONS]... <text> <html>"
+}
+
+
+T2H_HELP="Converting plain text file to HTML
+
+Options:
+    -c <t2h.sh>     configuration script (D=<text's dir>/$T2H_CONF)
+
+    -h              this help message
+"
+
+
+t2h_parse()
+{
+    OPTIND=1
+    while getopts "c:h" ARG; do
+        case "$ARG" in
+            c)  T2H_OPT_CONF="$OPTARG";;
+            h)
+                t2h_usage
+                t2h_help
+                exit 0
+                ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if (($# != 2)); then
+        t2h_usage >&2
+        exit 1
+    fi
+
+    T2H_TEXT_FILE="$1"
+    T2H_HTML_FILE="$2"
 }
 
 
 t2h_main()
 {
-    local tf="$1"   # input text file
-    local hf="$2"   # output HTML file
+    t2h_parse "$@"
 
-    if [[ -z "$tf" || -z "$hf" ]]; then
-        t2h_usage >&2
-        return 1
-    fi
+    local tf="$T2H_TEXT_FILE"   # input text file
+    local hf="$T2H_HTML_FILE"   # output HTML file
 
     local upd_ts=0
     if [[ "$tf" != - && "$hf" != - ]]; then
@@ -211,7 +242,13 @@ t2h_main()
         return 1
     fi
 
-    t2h_source_conf "$(dirname "$tf")/$T2H_CONF"
+    # expose directory conf for $T2H_OPT_CONF, so it can source if needs to
+    T2H_DIR_CONF="$(dirname "$tf")/$_T2H_CONF"
+    if [[ -r "$T2H_OPT_CONF" ]]; then
+        t2h_source_conf "$T2H_OPT_CONF"
+    elif [[ -r "$T2H_DIR_CONF" ]]; then
+        t2h_source_conf "$T2H_DIR_CONF"
+    fi
 
     # create non-existing directories
     local hd="$(dirname "$hf")"
