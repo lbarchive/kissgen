@@ -33,11 +33,6 @@ gen_dir()
     local td="${1%/}"   # input text directory
     local hd="${2%/}"   # output HTML directory
 
-    if [[ -z "$td" || -z "$hd" ]]; then
-        gen_usage >&2
-        return 1
-    fi
-
     # check if $td directory exists
     if [[ ! -d "$td" ]]; then
         echo "$GEN: [ERR] $td does not exist!" >&2
@@ -52,7 +47,7 @@ gen_dir()
         elif [[ -f "$f" && "$f" == *.txt ]]; then
             local hf="$(basename --suffix=.txt "$f").html"
             echo "$NAME: [T2H] $hd/$hf"
-            t2h "$f" "$hd/$hf"
+            "${GEN_T2H_CMD[@]}" "$f" "$hd/$hf"
         fi
     done
 }
@@ -69,9 +64,54 @@ gen_usage()
 }
 
 
+GEN_HELP="Generating HTML files from plain text files
+
+Options:
+    -t <t2h.sh>     configuration script for t2h (D=text.dir/.t2h.sh)
+
+    -h              this help message
+"
+
+
+gen_parse()
+{
+    OPTIND=1
+    while getopts "t:h" ARG; do
+        case "$ARG" in
+            t) GEN_T2H_CONF="$OPTARG";;
+            h)
+                idx_usage
+                idx_help
+                exit 0
+                ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if (($# != 2)); then
+        gen_usage >&2
+        exit 1
+    fi
+
+    GEN_TEXT_DIR="$1"
+    GEN_HTML_DIR="$2"
+
+    GEN_T2H_CMD=(t2h)
+    if [[ "$GEN_T2H_CONF" ]]; then
+        if [[ -r "$GEN_T2H_CONF" ]]; then
+            GEN_T2H_CMD+=('-c' "$GEN_T2H_CONF")
+        fi
+    elif [[ -r "$GEN_TEXT_DIR/.t2h.sh" ]]; then
+        GEN_T2H_CMD+=('-c' "$GEN_TEXT_DIR/.t2h.sh")
+    fi
+}
+
+
 gen_main()
 {
-    gen_dir "$@"
+    gen_parse "$@"
+    gen_dir "$GEN_TEXT_DIR" "$GEN_HTML_DIR"
 }
 
 

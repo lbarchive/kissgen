@@ -30,31 +30,20 @@ NAME=IDX
 
 idx_t2h_conf()
 {
-    cat <<EOF
-dir_title()
-{
-    echo "Index of $dir_path"
+    echo 't2h_hook_pre=(t2h_filter_linkify)'
 }
 
 
-t2h_hook_title=(dir_title t2h_html_encode)
-t2h_hook_pre=(t2h_filter_linkify)
-EOF
-}
-
-
+# generator directory list 00INDEX.html for $2 directory
 # $1: dir path
+# $2: html dirtory
 idx_dir()
 {
     local dir_path="$1"
     local hd="${2%/}"   # output HTML directory
     cd "$hd"
 
-    if [[ -z "$hd" ]]; then
-        idx_usage >&2
-        return 1
-    fi
-
+    echo "$NAME: [IDX] $IDX_HTML_DIR$dir_path"
     {
         echo "Index of $dir_path"
         echo
@@ -85,7 +74,13 @@ idx_dir()
             echo
         done
     } |
-    t2h -c <(idx_t2h_conf) - '00INDEX.html'
+    {
+        if [[ -z "$IDX_T2H_CONF" ]]; then
+            t2h -c <(idx_t2h_conf) -t "Index of $dir_path" - '00INDEX.html'
+        else
+            t2h -c "$IDX_T2H_CONF" -t "Index of $dir_path" - '00INDEX.html'
+        fi
+    }
 }
 
 
@@ -100,9 +95,47 @@ idx_usage()
 }
 
 
+IDX_HELP="Generating directory listings
+
+Options:
+    -t <t2h.sh>     configuration script for t2h
+
+    -h              this help message
+"
+
+
+idx_parse()
+{
+    OPTIND=1
+    while getopts "t:h" ARG; do
+        case "$ARG" in
+            t)  IDX_OPT_T2H_CONF="$OPTARG";;
+            h)
+                idx_usage
+                idx_help
+                exit 0
+                ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    if (($# != 1)); then
+        idx_usage >&2
+        exit 1
+    fi
+
+    IDX_HTML_DIR="$1"
+    if [[ -r "$IDX_OPT_T2H_CONF" ]]; then
+        IDX_T2H_CONF="$(readlink -f "$IDX_OPT_T2H_CONF")"
+    fi
+}
+
+
 idx_main()
 {
-    idx_dir '/' "$@"
+    idx_parse "$@"
+    idx_dir '/' "$IDX_HTML_DIR"
 }
 
 

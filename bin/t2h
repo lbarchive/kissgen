@@ -152,7 +152,7 @@ t2h_source_conf()
 
 t2h_conv()
 {
-    local title="$1"
+    local title="${T2H_TITLE:-$1}"
 
     echo '<!DOCTYPE html>'
 
@@ -184,6 +184,7 @@ T2H_HELP="Converting plain text file to HTML
 
 Options:
     -c <t2h.sh>     configuration script (D=<text's dir>/$T2H_CONF)
+    -t <title>      title
 
     -h              this help message
 "
@@ -192,9 +193,10 @@ Options:
 t2h_parse()
 {
     OPTIND=1
-    while getopts "c:h" ARG; do
+    while getopts "c:t:h" ARG; do
         case "$ARG" in
             c)  T2H_OPT_CONF="$OPTARG";;
+            t)  T2H_TITLE="$OPTARG";;
             h)
                 t2h_usage
                 t2h_help

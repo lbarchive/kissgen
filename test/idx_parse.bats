@@ -1,3 +1,5 @@
+#!/usr/bin/env bats
+_TF='idx_parse'     # tested function
 # Copyright (c) 2018 Yu-Jie Lin
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,76 +21,64 @@
 # SOFTWARE.
 
 
-BINDIR="$(readlink -f "$BATS_TEST_DIRNAME/../bin")"
-GEN="$BINDIR/gen"
-IDX="$BINDIR/idx"
-T2H="$BINDIR/t2h"
+load helper
 
 
-########
-# echo #
-########
-
-
-echo_ml()
+setup()
 {
-    echo '====='
-    echo "$1"
-    echo '====='
+    source "$IDX"
+    _init_tf_tmpdir
 }
 
 
-echo_lines()
+teardown()
 {
-    echo_ml "${lines[*]}"
+    _deinit_tf_tmpdir
 }
 
 
-###########
-# asserts #
-###########
+#############
+# arguments #
+#############
 
 
-# test strings $1 == $2
-eqs ()
-{
-    echo "   '$1'"
-    echo "!= '$2'"
-    [[ "$1" == "$2" ]]
+@test "$_TF html.dir  # default settings" {
+    eval "$BATS_TEST_DESCRIPTION"
+    eqs "$IDX_HTML_DIR" 'html.dir'
+    eqs "$IDX_T2H_OPT_CONF" ''
+    eqs "$IDX_T2H_CONF" ''
 }
 
 
-# test integers $1 == $2
-eqn ()
-{
-    echo "$1 != $2"
-    (($1 == $2))
+@test "$_TF  # missing html.dir" {
+    eval "run $BATS_TEST_DESCRIPTION"
+    eqn "$status" 1
+    echo_lines
+    [[ "${lines[*]}" == Usage* ]]
 }
 
 
-##########
-# tmpdir #
-##########
+#################
+# configuration #
+#################
 
 
-# initializes tested function temporary directory, which will be
-#
-#   $BATS_TMPDIR/$_TF, if $_TF != ''; otherwise
-#   $(mktemp --tmpdir=$BATS_TMPDIR --directory)
-_init_tf_tmpdir()
-{
-    if [[ "$_TF" ]]; then
-        _TF_TMPDIR="$BATS_TMPDIR/$_TF"
-        mkdir -p "$_TF_TMPDIR"
-    else
-        _TF_TMPDIR="$(mktemp --tmpdir=$BATS_TMPDIR --directory)"
-    fi
+@test "$_TF -t /BASE/non-existing.sh html.dir" {
+    local t2hsh="$_TF_TMPDIR/non-existing.sh"
+    eval "${BATS_TEST_DESCRIPTION/\/BASE/$_TF_TMPDIR}"
+
+    eqs "$IDX_HTML_DIR" 'html.dir'
+    eqs "$IDX_OPT_T2H_CONF" "$t2hsh"
+    eqs "$IDX_T2H_CONF" ''
 }
 
 
-_deinit_tf_tmpdir()
-{
-    if [[ -d "$_TF_TMPDIR" ]]; then
-        rm -rf "$_TF_TMPDIR"
-    fi
+@test "$_TF -t /BASE/existing.sh html.dir" {
+    local t2hsh="$_TF_TMPDIR/existing.sh"
+    touch "$t2hsh"
+
+    eval "${BATS_TEST_DESCRIPTION/\/BASE/$_TF_TMPDIR}"
+    eqs "$IDX_HTML_DIR" 'html.dir'
+    eqs "$IDX_OPT_T2H_CONF" "$t2hsh"
+    eqs "$IDX_T2H_CONF" "$t2hsh"
 }
