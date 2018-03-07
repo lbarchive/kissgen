@@ -23,6 +23,25 @@
 NAME=IDX
 
 
+#############
+# timestamp #
+#############
+
+
+# get file $1 modification time in seconds from Unix epoch
+idx_get_ts()
+{
+    stat -c %Y "$1"
+}
+
+
+# set file $2 modification time to $1 in seconds from Unix epoch
+idx_set_ts()
+{
+    touch -d @"$1" "$2"
+}
+
+
 ##############
 # generation #
 ##############
@@ -34,6 +53,9 @@ idx_t2h_conf()
 }
 
 
+IDX_FILENAME='00INDEX.html'
+
+
 # generator directory list 00INDEX.html for $2 directory
 # $1: dir path
 # $2: html dirtory
@@ -43,6 +65,17 @@ idx_dir()
     local hd="${2%/}"   # output HTML directory
     cd "$hd"
 
+    if [[ -f "$IDX_FILENAME" ]] \
+    && (($(idx_get_ts .) == $(idx_get_ts "$IDX_FILENAME"))); then
+        # no need to re-generate 00INDEX.html, but still need to loop through
+        # sub-directories.
+        for d in */; do
+            [[ "$d" == '*/' ]] && continue
+            ( idx_dir "$dir_path$d" "$d" ) >&2
+        done
+        return
+    fi
+
     echo "$NAME: [IDX] $IDX_HTML_DIR$dir_path"
     {
         echo "Index of $dir_path"
@@ -50,7 +83,7 @@ idx_dir()
         echo "[C] ."
         echo
         if [[ "$dir_path" != '/' ]]; then
-            echo "[I] ../00INDEX.html"
+            echo "[I] ../$IDX_FILENAME"
             echo
             echo "    [U] .."
             echo
@@ -61,7 +94,7 @@ idx_dir()
             [[ "$d" == '*/' ]] && continue
             ( idx_dir "$dir_path$d" "$d" ) >&2
             d="${d%/}"
-            echo "[I] ./$d/00INDEX.html"
+            echo "[I] ./$d/$IDX_FILENAME"
             echo
             echo "    [D] ./$d"
             echo
@@ -69,18 +102,20 @@ idx_dir()
         echo
 
         for h in *.html; do
-            [[ "$h" == '00INDEX.html' ]] && continue
+            [[ "$h" == "$IDX_FILENAME" ]] && continue
             echo "[H] ./$h"
             echo
         done
     } |
     {
         if [[ -z "$IDX_T2H_CONF" ]]; then
-            t2h -c <(idx_t2h_conf) -t "Index of $dir_path" - '00INDEX.html'
+            t2h -c <(idx_t2h_conf) -t "Index of $dir_path" - "$IDX_FILENAME"
         else
-            t2h -c "$IDX_T2H_CONF" -t "Index of $dir_path" - '00INDEX.html'
+            t2h -c "$IDX_T2H_CONF" -t "Index of $dir_path" - "$IDX_FILENAME"
         fi
     }
+
+    idx_set_ts "$(idx_get_ts $IDX_FILENAME)" .
 }
 
 

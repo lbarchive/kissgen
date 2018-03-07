@@ -186,6 +186,8 @@ Options:
     -c <t2h.sh>     configuration script (D=<text's dir>/$T2H_CONF)
     -t <title>      title
 
+    -C              do not copy text to html's directory
+
     -h              this help message
 "
 
@@ -193,10 +195,11 @@ Options:
 t2h_parse()
 {
     OPTIND=1
-    while getopts "c:t:h" ARG; do
+    while getopts "c:t:Ch" ARG; do
         case "$ARG" in
             c)  T2H_OPT_CONF="$OPTARG";;
             t)  T2H_TITLE="$OPTARG";;
+            C)  T2H_NOCOPY=1;;
             h)
                 t2h_usage
                 t2h_help
@@ -259,10 +262,19 @@ t2h_main()
         mkdir -p "$hd"
     fi
 
-    t2h_conv "$(basename "$tf")" < "$tf" > "$hf"
+    local td="$(dirname "$tf")"
+    local td_copy="${hf%.html}.txt"
+    if ((T2H_NOCOPY)) || [[ "$td" == "$hd" ]]; then
+        t2h_conv "$(basename "$tf")" < "$tf" > "$hf"
+    else
+        tee "$td_copy" < "$tf" | t2h_conv "$(basename "$tf")" - > "$hf"
+    fi
 
     if ((upd_ts)); then
         t2h_set_ts "$(t2h_get_ts "$tf")" "$hf"
+    fi
+    if [[ -f "$td_copy" ]]; then
+        t2h_set_ts "$(t2h_get_ts "$hf")" "$td_copy"
     fi
 }
 

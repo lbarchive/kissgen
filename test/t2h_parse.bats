@@ -37,8 +37,11 @@ setup()
 
 @test "$_TF text html  # default settings" {
     eval "$BATS_TEST_DESCRIPTION"
+
     eqs "$T2H_TEXT_FILE" 'text'
     eqs "$T2H_HTML_FILE" 'html'
+
+    eqs "$T2H_NOCOPY" ''
 }
 
 
@@ -65,4 +68,10 @@ setup()
 @test "$_TF -c /path/to/foobar.sh text html" {
     eval "$BATS_TEST_DESCRIPTION"
     eqs "$T2H_OPT_CONF" "/path/to/foobar.sh" 
+}
+
+
+@test "$_TF -C text html" {
+    eval "$BATS_TEST_DESCRIPTION"
+    eqn "$T2H_NOCOPY" 1
 }

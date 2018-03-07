@@ -197,3 +197,47 @@ teardown()
     local tsh="$(stat -c %Y "$hf")"
     eqn "$tst" "$tsh"
 }
+
+
+##############
+# T2H_NOCOPY #
+##############
+
+
+@test "$_TF test.txt output/test.html  # copy text" {
+    local text="foobar"
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/output/test.html"
+    echo "$text" > "$tf"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    diff "$tf" "${hf%.html}.txt"
+}
+
+
+@test "$_TF - output/test.html  # copy text / stdin" {
+    local text="foobar"
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/output/test.html"
+    echo "$text" > "$tf"
+
+    run t2h "$tf" "$hf"
+
+    eqn "$status" 0
+    diff <(echo "$text") "${hf%.html}.txt"
+}
+
+
+@test "$_TF -C test.txt output/test.html  # no copy" {
+    local text="foobar"
+    local tf="$_TF_TMPDIR/test.txt"
+    local hf="$_TF_TMPDIR/output/test.html"
+    echo "$text" > "$tf"
+
+    run t2h -C "$tf" "$hf"
+
+    eqn "$status" 0
+    [[ ! -f "${hf%.html}.txt" ]]
+}
