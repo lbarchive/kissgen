@@ -79,24 +79,22 @@ idx_dir()
     echo "$NAME: [IDX] $IDX_HTML_DIR$dir_path"
     {
         echo "Index of $dir_path"
-        echo
         echo "[C] ."
         echo
+        echo
+
         if [[ "$dir_path" != '/' ]]; then
             echo "[I] ../$IDX_FILENAME"
-            echo
-            echo "    [U] .."
+            echo "[U] .."
             echo
         fi
-        echo
 
         for d in */; do
             [[ "$d" == '*/' ]] && continue
             ( idx_dir "$dir_path$d" "$d" ) >&2
             d="${d%/}"
             echo "[I] ./$d/$IDX_FILENAME"
-            echo
-            echo "    [D] ./$d"
+            echo "[D] ./$d"
             echo
         done
         echo
@@ -104,6 +102,10 @@ idx_dir()
         for h in *.html; do
             [[ "$h" == "$IDX_FILENAME" ]] && continue
             echo "[H] ./$h"
+            local tf="${h%.html}.txt"
+            if [[ -f "$tf" ]]; then
+                echo "[T] ./$tf"
+            fi
             echo
         done
     } |
