@@ -22,6 +22,8 @@
 
 NAME=gen
 
+T2H="$(dirname $(readlink -f "$BASH_SOURCE"))/t2h"
+
 
 ##############
 # generation #
@@ -97,7 +99,7 @@ gen_parse()
     GEN_TEXT_DIR="$1"
     GEN_HTML_DIR="$2"
 
-    GEN_T2H_CMD=(t2h)
+    GEN_T2H_CMD=("$T2H")
     if [[ "$GEN_T2H_CONF" ]]; then
         if [[ -r "$GEN_T2H_CONF" ]]; then
             GEN_T2H_CMD+=('-c' "$GEN_T2H_CONF")

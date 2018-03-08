@@ -22,6 +22,8 @@
 
 NAME=IDX
 
+T2H="$(dirname $(readlink -f "$BASH_SOURCE"))/t2h"
+
 
 #############
 # timestamp #
@@ -111,9 +113,9 @@ idx_dir()
     } |
     {
         if [[ -z "$IDX_T2H_CONF" ]]; then
-            t2h -c <(idx_t2h_conf) -t "Index of $dir_path" - "$IDX_FILENAME"
+            "$T2H" -c <(idx_t2h_conf) -t "Index of $dir_path" - "$IDX_FILENAME"
         else
-            t2h -c "$IDX_T2H_CONF" -t "Index of $dir_path" - "$IDX_FILENAME"
+            "$T2H" -c "$IDX_T2H_CONF" -t "Index of $dir_path" - "$IDX_FILENAME"
         fi
     }
 

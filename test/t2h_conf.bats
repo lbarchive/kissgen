@@ -55,7 +55,7 @@ teardown()
     local conf="$(dirname "$tf")/$_T2H_CONF"
     echo '_foobar(){ echo foobar; }; t2h_hook_after_title=(_foobar)' > "$conf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     eqs "$(<$hf)" "<!DOCTYPE html>

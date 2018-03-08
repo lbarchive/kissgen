@@ -41,14 +41,14 @@ teardown()
 #############
 
 
-@test "$_TF  # missing both text and html arguments" {
+@test "$T2H  # missing both text and html arguments" {
     run $BATS_TEST_DESCRIPTION
 
     eqn "$status" 1
 }
 
 
-@test "$_TF test.txt  # missing html argument" {
+@test "$T2H test.txt  # missing html argument" {
     run $BATS_TEST_DESCRIPTION
 
     eqn "$status" 1
@@ -61,7 +61,7 @@ teardown()
     local hf="$_TF_TMPDIR/test.html"
     echo "$text" > "$tf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     echo_ml "$(<"$hf")"
@@ -74,7 +74,7 @@ teardown()
     local tf="$_TF_TMPDIR/test.txt"
     local hf="$_TF_TMPDIR/test.html"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 1
     echo_lines
@@ -88,7 +88,7 @@ teardown()
     local hf="$_TF_TMPDIR/html.dir/test.html"
     echo "$text" > "$tf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
     eqn "$status" 0
     echo_lines
     [[ "${lines[0]}" == *mkdir* ]]
@@ -104,7 +104,7 @@ teardown()
     local text="foobar"
     local hf="$_TF_TMPDIR/test.html"
 
-    run t2h - "$hf" <<<"$text"
+    run "$T2H" - "$hf" <<<"$text"
 
     eqn "$status" 0
     echo_ml "$(<"$hf")"
@@ -117,7 +117,7 @@ teardown()
     local tf="$_TF_TMPDIR/test.txt"
     echo "$text" > "$tf"
 
-    run t2h "$tf" - <<<"$text"
+    run "$T2H" "$tf" - <<<"$text"
 
     eqn "$status" 0
     echo_lines
@@ -128,7 +128,7 @@ teardown()
 @test "$_TF <stdin> <stdout>" {
     local text="foobar"
 
-    run t2h - - <<<"$text"
+    run "$T2H" - - <<<"$text"
 
     eqn "$status" 0
     echo_lines
@@ -147,12 +147,12 @@ teardown()
 
     touch "$tf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     eqs "${lines[*]}" ''
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     echo_lines
@@ -170,7 +170,7 @@ teardown()
 
     touch -d 0 "$tf" "$hf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     [[ "${lines[*]}" == *SKIP* ]]
@@ -188,7 +188,7 @@ teardown()
     touch -d 0 "$tf"
     touch -d 7 "$hf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     eqs "${lines[*]}" ''
@@ -210,7 +210,7 @@ teardown()
     local hf="$_TF_TMPDIR/output/test.html"
     echo "$text" > "$tf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     diff "$tf" "${hf%.html}.txt"
@@ -223,7 +223,7 @@ teardown()
     local hf="$_TF_TMPDIR/output/test.html"
     echo "$text" > "$tf"
 
-    run t2h "$tf" "$hf"
+    run "$T2H" "$tf" "$hf"
 
     eqn "$status" 0
     diff <(echo "$text") "${hf%.html}.txt"
@@ -236,7 +236,7 @@ teardown()
     local hf="$_TF_TMPDIR/output/test.html"
     echo "$text" > "$tf"
 
-    run t2h -C "$tf" "$hf"
+    run "$T2H" -C "$tf" "$hf"
 
     eqn "$status" 0
     [[ ! -f "${hf%.html}.txt" ]]

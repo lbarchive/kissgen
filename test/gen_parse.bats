@@ -46,7 +46,7 @@ teardown()
     eval "$BATS_TEST_DESCRIPTION"
     eqs "$GEN_TEXT_DIR" 'text.dir'
     eqs "$GEN_HTML_DIR" 'html.dir'
-    eqs "${GEN_T2H_CMD[*]}" 't2h'
+    eqs "${GEN_T2H_CMD[*]}" "$T2H"
 }
 
 
@@ -78,7 +78,7 @@ teardown()
     eqs "$GEN_TEXT_DIR" 'text.dir'
     eqs "$GEN_HTML_DIR" 'html.dir'
     eqs "$GEN_T2H_CONF" "$t2hsh"
-    eqs "${GEN_T2H_CMD[*]}" 't2h'
+    eqs "${GEN_T2H_CMD[*]}" "$T2H"
 }
 
 
@@ -90,5 +90,5 @@ teardown()
     eqs "$GEN_TEXT_DIR" 'text.dir'
     eqs "$GEN_HTML_DIR" 'html.dir'
     eqs "$GEN_T2H_CONF" "$t2hsh"
-    eqs "${GEN_T2H_CMD[*]}" "t2h -c $t2hsh"
+    eqs "${GEN_T2H_CMD[*]}" "$T2H -c $t2hsh"
 }

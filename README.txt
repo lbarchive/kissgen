@@ -73,10 +73,8 @@ kissgen consists of a set of scripts:
                                  INSTALLATION
 
 
-There is no installation at the moment and probably would never have if only I 
-use them, you need to manually set $PATH:
-
-    PATH=/path/to/kissgen/bin:$PATH
+There is no installation at the moment and probably would never have if I am 
+the only person use them.
 
 
                                      USAGE
