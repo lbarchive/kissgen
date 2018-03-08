@@ -1,0 +1,9 @@
+
+
+                                    kissgen
+
+                      KISS-Inspired Static Site GENerator
+
+
+[X] ./README.html
+[I] ./00INDEX.html
