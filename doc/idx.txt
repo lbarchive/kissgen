@@ -1,0 +1,12 @@
+
+
+                                      idx
+
+
+idx generates directory listing for *.html and *.txt files.
+
+
+                                   FEATURES
+
+
+- timestamp check: no unnecessary generations.

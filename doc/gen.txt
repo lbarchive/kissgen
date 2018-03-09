@@ -1,0 +1,7 @@
+
+
+                                      gen
+
+
+gen generates HTML files with a directory of text files, it is the main script 
+of kissgen, although t2h does all the conversion work.
